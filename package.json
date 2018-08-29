@@ -1,0 +1,14 @@
+{
+  "name": "testtask",
+  "version": "1.0.0",
+  "description": "test task",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "is-positive-integer": "^1.1.1"
+  }
+}
