@@ -4,6 +4,8 @@
   "description": "test task",
   "main": "index.js",
   "scripts": {
+    "getOptimalChange" : "node . --CHANGE_MODE=0 --AMOUNT=100 ",
+    "getChange" : "node . --CHANGE_MODE=1 --AMOUNT=123 ",
     "test": "node test"
   },
   "author": "",
