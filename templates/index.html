@@ -2,9 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>$Title$</title>
+    <title>Vending Machine</title>
 </head>
 <body>
-$END$
+    <div id="app">
+        <div>
+            <input type="text" id="optimal-change" v-model="optimalChange" placeholder="Optimal change">
+            <button id="optimal-change-run" @click="getOptimalChangeResult">Run</button>
+            <div id="optimal-change-result">
+                <ul>
+                    <li v-for="result in optimalChangeResult">{{result}}</li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <input type="text" id="change" placeholder="Change">
+            <button id="change-run">Run</button>
+            <div id="change-result"></div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
