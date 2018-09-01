@@ -1,26 +1,42 @@
+//Use es5, for  cross-browser compatibility
 var app = new Vue({
     el: '#app',
     data: {
-        optimalChangeResult: [],
-        optimalChange: ''
+        optimalChangeResult: '',
+        changeResult: '',
+        optimalChange: '',
+        normalChange: ''
     },
     methods: {
-        getOptimalChangeResult: function () {
+        /**
+         *
+         * @param e
+         * @param {int} mode - 0: optimal change mode; 1: normal change mode with limits
+         */
+        getChangeResult: function (e, mode) {
             var self = this;
-            if (!this.optimalChange) {
+            var amount = mode === 0 ? this.optimalChange : this.normalChange;
+            if (!amount) {
                 alert('Value must be provided');//todo think about text
+                return;
             }
 
-            var url = '/getOptimalChangeFor' + '?amount='+this.optimalChange;
+            var url = '/getChange' + '?amount='+ amount + "&mode=" + mode;
+
             fetch(url).then(function (data) {
                 return data.json();
             }).then(function (json) {
                 if (json.error) {
-                    return alert(json.error);
+                    throw Error(json.error);
                 }
-                self.optimalChangeResult = json.result;
+                if(mode === 0) {
+                    self.optimalChangeResult = json.answer;
+                } else {
+                    self.changeResult = json.answer;
+                }
+
             }).catch(function(error) {
-                console.log('There has been a problem with your fetch operation: ' + error.message);
+                return alert(error.message);
             });
         }
     }

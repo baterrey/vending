@@ -2,88 +2,88 @@ const isPositiveInteger = require('is-positive-integer');
 
 class VendingMachine {
     /**
-     *
      * @param {int} euro
-     * @return {*}
+     * @param {boolean} withLimits
      */
-    getOptimalChangeFor (euro) {
-        console.log('\n=========Run getOptimalChangeFor=========');
-        if (euro && isPositiveInteger(euro) && isPositiveInteger.isSafePositiveInteger(euro)) {
-            let denominations = this.constructor.denominations;
-            console.log(`Base euro value is ${euro}`);
-
-            let summaryResults = this.changeCoins(euro, denominations);
-            console.log('Getting Coins:');
-            console.log(summaryResults.change);
-            console.log('=========Finish getOptimalChangeFor=========');
-            return summaryResults;
-        } else {
-            let error = 'Provided value of euro is not valid, it must be positive int. Processing is cancel';
-            console.log(error);
-            console.log('=========Finish getOptimalChangeFor=========');
-            return {error: error};
+    getChangeFor(euro, withLimits = false) {
+        //try to get number from string
+        euro = Number(euro);
+        let summaryResults;
+        if (euro === 0) {
+            return {error: 'Amount of euro must to be bigger then 0'};
         }
-
-    }
-
-    /**
-     * @param {int} euro
-     */
-    getChangeFor(euro) {
-        console.log('\n=========Run getChangeFor=========');
         if (euro && isPositiveInteger(euro)) {
-            let coinsLimits = this.constructor.coinsLimits;
-            let denominations = this.constructor.denominations;
-            console.log(`Base euro value is ${euro}`);
-
-            let summaryResults = this.changeCoins(euro, denominations, coinsLimits);
-            console.log('Getting Coins:');
-            console.log(summaryResults.change);
-
-            console.log('Coins Left:');
-            console.log(summaryResults.limits);
+            console.log(`Run getChangeFor with euro value is ${euro}`);
+            try {
+                summaryResults = this.changeCoins(euro, withLimits);
+            } catch (e) {
+                console.log('error with calculations:', e.message);
+                summaryResults = {error: e.message}
+            }
         } else {
-            console.log('Sorry, but provided value of euro is not valid, it must be positive int. Processing is cancel');
+            summaryResults = {error: 'Sorry, but provided value of euro is not valid, it must be positive int. Processing is cancel'};
         }
-        console.log('=========Finish getChangeFor=========');
+
+        console.log('Finish getChangeFor');
+        return summaryResults;
     }
 
 
     /**
      * Main changing process
      * @param {int} euro
-     * @param {Map} denominations
-     * @param {Map} [coinsLimits]
+     * @param {boolean} withLimits
      * @returns {{change: Array}}
      */
-    changeCoins(euro, denominations, coinsLimits) {
+    changeCoins(euro, withLimits) {
         let results = [];
+        let coinsLimits;
+        if (withLimits) {
+            coinsLimits = this.constructor.coinsLimits;
+        }
+
+        let denominations = this.constructor.denominations;
+        /** Loop for check how much coins of each denomination we can give for change */
         for (let coin of denominations) {
             let value = coin[0];
             let denomination = coin[1];
 
-            /** Default coins availability */
+            /** Default coins availability,
+             * Check if we have limit for this coin
+             * */
             let coinsAvailable = Infinity;
             if (coinsLimits && coinsLimits.has(value)) {
                 /** Limited coins availability */
                 coinsAvailable = coinsLimits.get(value);
+                if (coinsAvailable === 0) {
+                    /** We don't have available coins for giving change **/
+                    continue;
+                }
             }
 
+            /** This value is max amount of coins of one denomination we can give for change **/
             let coins = euro / value;
             if (coins >= 1 ) {
                 /** Numbers of coins to reduce from limits, will be used only if limits are set */
                 let coinsReduce;
 
-                /** In this case we have not enough coins in vending machine, so give all what we have */
+                /** In this case we have not enough coins in vending machine, so give all what we have
+                 *  Subtract from the euro amount the value that we gave out with coins
+                 * */
                 if (coins > coinsAvailable ) {
                     results.push(`${denomination}: ${coinsAvailable}`);
                     euro -= coinsAvailable * value;
+                    /** the number of coins that was needed, then we will take it away from the existing limit if we have ir **/
                     coinsReduce = coinsAvailable;
                 } else {
-                    /** In this case we have more or equal to necessary coins for giving change */
-                    results.push(`${denomination}: ${Math.floor(coins)}`);
+                    /** In this case we have more or equal to necessary coins for giving change
+                     * In this case, we take the remainder from the division, or we do not have a limit of coins, or there are enough coins to exchange them
+                     * */
+                    coins = Math.floor(coins);//only integer part
+                    results.push(`${denomination}: ${coins}`);
                     euro = euro % value;
-                    coinsReduce = Math.floor(coins);
+                    /** the number of coins that was needed, then we will take it away from the existing limit if we have ir **/
+                    coinsReduce = coins;
                 }
                 /** If we have limits we need to reduce them */
                 if (coinsLimits) {
@@ -94,15 +94,17 @@ class VendingMachine {
 
         /** This means that we don't have coins to get change, throw Exception */
         if (euro > 0) {
-            throw new Error('Coins is not enough');
+            throw Error('Coins is not enough');
         }
 
         let summaryResults = {
             change: results
         };
 
+        /** Limitations */
         if (coinsLimits) {
             summaryResults.limits = this.getLeftCoins(coinsLimits);
+            summaryResults.baseLimits = this.getLeftCoins(this.constructor.coinsLimits);
         }
 
         return summaryResults;

@@ -3,22 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <title>Vending Machine</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div id="app">
-        <div>
-            <input type="text" id="optimal-change" v-model="optimalChange" placeholder="Optimal change">
-            <button id="optimal-change-run" @click="getOptimalChangeResult">Run</button>
-            <div id="optimal-change-result">
-                <ul>
-                    <li v-for="result in optimalChangeResult">{{result}}</li>
-                </ul>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h4>Test <code>getOptimalChangeFor</code></h4>
+                    <form class="form-inline mb-3">
+                        <input id="optimal-change" v-model="optimalChange" class="form-control col-sm-8" placeholder="Optimal change">
+                        <button id="optimal-change-run" @click="getChangeResult($event, 0)" type="button" class="btn btn-success col-sm-4">Calculate</button>
+                    </form>
+                    <div id="optimal-change-result" class="result" v-if="optimalChangeResult">
+                       <code>
+                           Change:
+                           <pre>{{optimalChangeResult.change}}</pre>
+                       </code>
+                    </div>
+
+                </div>
+                <div class="col">
+                    <h4>Test <code>getChangeFor</code></h4>
+                    <form class="form-inline mb-3">
+                        <input id="change" v-model="normalChange" class="form-control col-sm-8" placeholder="Change">
+                        <button id="change-run" @click="getChangeResult($event, 1)" type="button" class="btn btn-success col-sm-4">Calculate</button>
+                    </form>
+                    <div id="change-result" class="result" v-if="changeResult">
+                        <code>
+                            Base Coins Limits:
+                            <pre>{{changeResult.baseLimits}}</pre>
+                            Coins Left:
+                            <pre>{{changeResult.limits}}</pre>
+                            Change:
+                            <pre>{{changeResult.change}}</pre>
+                        </code>
+                    </div>
+                </div>
             </div>
         </div>
         <div>
-            <input type="text" id="change" placeholder="Change">
-            <button id="change-run">Run</button>
-            <div id="change-result"></div>
+
+        </div>
+        <div>
+
         </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.17/vue.min.js"></script>
