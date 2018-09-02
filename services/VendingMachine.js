@@ -6,7 +6,7 @@ class VendingMachine {
      * @param {boolean} withLimits
      */
     getChangeFor(euro, withLimits = false) {
-        //try to get number from string
+        /** Try to get number if argument is string*/
         euro = Number(euro);
         let summaryResults;
         if (euro === 0) {
@@ -38,22 +38,28 @@ class VendingMachine {
     changeCoins(euro, withLimits) {
         let results = [];
         let coinsLimits;
+        let summaryResults;
+        let denominations = this.constructor.denominations;
         if (withLimits) {
             coinsLimits = this.constructor.coinsLimits;
         }
-
-        let denominations = this.constructor.denominations;
-        /** Loop for check how much coins of each denomination we can give for change */
+        /**
+         * 1) Looping all available coins
+         * 2) Check for limitation. (Let's assume that the limits are a constant)
+         * 3) Getting amount of coins, what we want to get from vending machine
+         * 4)
+         *    a) if we have not enough coins in vending machine, so give all what we have for current denomination,
+         *       Subtract from the euro amount the value that we gave out with coins;
+         *    b) if we have more or equal to necessary coins for giving change,
+         *       taking remainder from the division as euro amount, or we do not have a limit of coins, or there are enough coins to exchange them
+         *
+         * */
         for (let coin of denominations) {
             let value = coin[0];
             let denomination = coin[1];
 
-            /** Default coins availability,
-             * Check if we have limit for this coin
-             * */
             let coinsAvailable = Infinity;
             if (coinsLimits && coinsLimits.has(value)) {
-                /** Limited coins availability */
                 coinsAvailable = coinsLimits.get(value);
                 if (coinsAvailable === 0) {
                     /** We don't have available coins for giving change **/
@@ -62,33 +68,29 @@ class VendingMachine {
             }
 
             /** This value is max amount of coins of one denomination we can give for change **/
-            let coins = euro / value;
-            if (coins >= 1 ) {
-                /** Numbers of coins to reduce from limits, will be used only if limits are set */
-                let coinsReduce;
+            let coinsWantGet = euro / value;
 
-                /** In this case we have not enough coins in vending machine, so give all what we have
-                 *  Subtract from the euro amount the value that we gave out with coins
-                 * */
-                if (coins > coinsAvailable ) {
-                    results.push(`${denomination}: ${coinsAvailable}`);
-                    euro -= coinsAvailable * value;
-                    /** the number of coins that was needed, then we will take it away from the existing limit if we have ir **/
-                    coinsReduce = coinsAvailable;
-                } else {
-                    /** In this case we have more or equal to necessary coins for giving change
-                     * In this case, we take the remainder from the division, or we do not have a limit of coins, or there are enough coins to exchange them
-                     * */
-                    coins = Math.floor(coins);//only integer part
-                    results.push(`${denomination}: ${coins}`);
-                    euro = euro % value;
-                    /** the number of coins that was needed, then we will take it away from the existing limit if we have ir **/
-                    coinsReduce = coins;
-                }
-                /** If we have limits we need to reduce them */
-                if (coinsLimits) {
-                    coinsLimits.set(value, coinsAvailable - coinsReduce);
-                }
+            if (coinsWantGet < 1) {
+                continue;
+            }
+
+            /** Numbers of coins to reduce from limits, will be used only if limits are set */
+            let coinsReduce;
+
+            /** Main process **/
+            if (coinsWantGet > coinsAvailable ) {
+                results.push(`${denomination}: ${coinsAvailable}`);
+                euro -= coinsAvailable * value;
+                coinsReduce = coinsAvailable;
+            } else {
+                coinsWantGet = Math.floor(coinsWantGet);//only integer part
+                results.push(`${denomination}: ${coinsWantGet}`);
+                euro = euro % value;
+                coinsReduce = coinsWantGet;
+            }
+            /** If we have limits we need to reduce them */
+            if (coinsLimits) {
+                coinsLimits.set(value, coinsAvailable - coinsReduce);
             }
         }
 
@@ -97,7 +99,7 @@ class VendingMachine {
             throw Error('Coins is not enough');
         }
 
-        let summaryResults = {
+        summaryResults = {
             change: results
         };
 
