@@ -42,9 +42,7 @@ class VendingMachine {
         let coinsLimits;
         let summaryResults;
         let denominations = this.constructor.denominations;
-        if (withLimits) {
-            coinsLimits = this.constructor.coinsLimits;
-        }
+
         /**
          * 1) Looping all available coins
          * 2) Check for limitation. (Let's assume that the limits are a constant)
@@ -56,6 +54,10 @@ class VendingMachine {
          *       taking remainder from the division as euro amount, or we do not have a limit of coins, or there are enough coins to exchange them
          *
          * */
+        if (withLimits) {
+            coinsLimits = this.constructor.coinsLimits;
+        }
+
         for (let coin of denominations) {
             let value = coin[0];
             let denomination = coin[1];
@@ -90,7 +92,7 @@ class VendingMachine {
                 coinsReduce = coinsWantGet;
             }
             /** If we have limits we need to reduce them */
-            if (coinsLimits) {
+            if (withLimits) {
                 coinsLimits.set(value, coinsAvailable - coinsReduce);
             }
         }
@@ -105,7 +107,7 @@ class VendingMachine {
         };
 
         /** Limitations */
-        if (coinsLimits) {
+        if (withLimits) {
             summaryResults.limits = coinsLimits;
             summaryResults.baseLimits = this.constructor.coinsLimits;
         }
