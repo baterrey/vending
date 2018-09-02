@@ -1,9 +1,10 @@
+"use strict";
 const isPositiveInteger = require('is-positive-integer');
 
 class VendingMachine {
     /**
      * @param {int} euro
-     * @param {boolean} withLimits
+     * @param {boolean} [withLimits = false]
      */
     getChangeFor(euro, withLimits = false) {
         /** Try to get number if argument is string*/
@@ -15,7 +16,8 @@ class VendingMachine {
         if (euro && isPositiveInteger(euro)) {
             console.log(`Run getChangeFor with euro value is ${euro}`);
             try {
-                summaryResults = this.changeCoins(euro, withLimits);
+                summaryResults = this.__changeCoins(euro, withLimits);
+                summaryResults = this.__preetyfyResults(summaryResults);
             } catch (e) {
                 console.log('error with calculations:', e.message);
                 summaryResults = {error: e.message}
@@ -32,11 +34,11 @@ class VendingMachine {
     /**
      * Main changing process
      * @param {int} euro
-     * @param {boolean} withLimits
+     * @param {boolean} [withLimits = false]
      * @returns {{change: Array}}
      */
-    changeCoins(euro, withLimits) {
-        let results = [];
+    __changeCoins(euro, withLimits = false) {
+        let results = new Map();
         let coinsLimits;
         let summaryResults;
         let denominations = this.constructor.denominations;
@@ -73,18 +75,17 @@ class VendingMachine {
             if (coinsWantGet < 1) {
                 continue;
             }
-
             /** Numbers of coins to reduce from limits, will be used only if limits are set */
             let coinsReduce;
 
             /** Main process **/
             if (coinsWantGet > coinsAvailable ) {
-                results.push(`${denomination}: ${coinsAvailable}`);
+                results.set(denomination, coinsAvailable);
                 euro -= coinsAvailable * value;
                 coinsReduce = coinsAvailable;
             } else {
                 coinsWantGet = Math.floor(coinsWantGet);//only integer part
-                results.push(`${denomination}: ${coinsWantGet}`);
+                results.set(denomination, coinsWantGet);
                 euro = euro % value;
                 coinsReduce = coinsWantGet;
             }
@@ -105,27 +106,54 @@ class VendingMachine {
 
         /** Limitations */
         if (coinsLimits) {
-            summaryResults.limits = this.getLeftCoins(coinsLimits);
-            summaryResults.baseLimits = this.getLeftCoins(this.constructor.coinsLimits);
+            summaryResults.limits = coinsLimits;
+            summaryResults.baseLimits = this.constructor.coinsLimits;
         }
-
         return summaryResults;
     }
 
     /**
-     * Just mapping coins denominations by value
-     * @param coinAmount
+     * Just mapping coins denominations by value and return string
+     * @param {Map} coinAmount
      * @returns {string}
      */
-    getLeftCoins(coinAmount) {
+    __mapDenominationToValue(coinAmount) {
         let result = '';
         for (let amount of coinAmount) {
             let denomination = this.constructor.denominations.get(amount[0]);
+            if (!denomination) {
+                denomination = amount[0];
+            }
             result += denomination + ": " + amount[1] + "\n";
         }
         return result;
     }
 
+    /**
+     *
+     * @param {object} results
+     * @return {object} results
+     * @private
+     */
+    __preetyfyResults(results) {
+        if(results) {
+            if (results.limits) {
+                results.limits = this.__mapDenominationToValue(results.limits);
+            }
+            if (results.baseLimits) {
+                results.baseLimits = this.__mapDenominationToValue(results.baseLimits);
+            }
+            if (results.change) {
+                results.change = this.__mapDenominationToValue(results.change);
+            }
+        }
+        return results;
+    }
+
+    /**
+     *
+     * @return {Map} - Constants of denominations
+     */
     static get denominations() {
         return new Map([
             [100, "One Euro"],
@@ -138,6 +166,10 @@ class VendingMachine {
         ])
     }
 
+    /**
+     *
+     * @return {Map} - Constants of limits
+     */
     static get coinsLimits() {
         return new Map([
             [100, 11],

@@ -1,3 +1,4 @@
+"use strict";
 const express = require('express');
 const app = express();
 app.use(express.static('./public'));
@@ -27,7 +28,6 @@ app.get('/getChange',  (req, res) => {
          * 1 - get change with limits
          */
         if (query.mode) {
-            //console.log(typeof query.mode, query.mode, query.mode === '1');
             if(query.mode !== '0' && query.mode !== '1') {
                 answer = {error: 'Undefined mode. Please check your input'}
             } else {
