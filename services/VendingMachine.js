@@ -82,10 +82,16 @@ class VendingMachine {
 
             /** Main process **/
             if (coinsWantGet > coinsAvailable ) {
+                /**
+                 * see 4 a)
+                 */
                 results.set(denomination, coinsAvailable);
                 euro -= coinsAvailable * value;
                 coinsReduce = coinsAvailable;
             } else {
+                /**
+                 * see 4 b)
+                 */
                 coinsWantGet = Math.floor(coinsWantGet);//only integer part
                 results.set(denomination, coinsWantGet);
                 euro = euro % value;
