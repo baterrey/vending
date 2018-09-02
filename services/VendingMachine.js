@@ -1,6 +1,4 @@
 "use strict";
-const isPositiveInteger = require('is-positive-integer');
-
 class VendingMachine {
     /**
      * @param {int} euro
@@ -13,7 +11,7 @@ class VendingMachine {
         if (euro === 0) {
             return {error: 'Amount of euro must to be bigger then 0'};
         }
-        if (euro && isPositiveInteger(euro)) {
+        if (euro && this.constructor.isPositiveInteger(euro)) {
             console.log(`Run getChangeFor with euro value is ${euro}`);
             try {
                 summaryResults = this.__changeCoins(euro, withLimits);
@@ -188,6 +186,15 @@ class VendingMachine {
             [2, 11],
             [1, 23],
         ])
+    }
+
+    static isPositiveInteger (x) {
+        // Is it a number?
+        return Object.prototype.toString.call(x) === '[object Number]' &&
+            // Is it an integer?
+            x % 1 === 0 &&
+            // Is it positive?
+            x > 0
     }
 }
 
