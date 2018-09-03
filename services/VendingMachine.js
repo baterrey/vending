@@ -1,4 +1,3 @@
-"use strict";
 class VendingMachine {
     /**
      * @param {int} euro
@@ -36,10 +35,10 @@ class VendingMachine {
      * @returns {{change: Array}}
      */
     __changeCoins(euro, withLimits = false) {
-        let results = new Map();
+        const results = new Map();
         let coinsLimits;
         let summaryResults;
-        let denominations = this.constructor.denominations;
+        const denominations = this.constructor.denominations;
 
         /**
          * 1) Looping all available coins
@@ -56,9 +55,9 @@ class VendingMachine {
             coinsLimits = this.constructor.coinsLimits;
         }
 
-        for (let coin of denominations) {
-            let value = coin[0];
-            let denomination = coin[1];
+        for (const coin of denominations) {
+            const value = coin[0];
+            const denomination = coin[1];
 
             let coinsAvailable = Infinity;
             if (coinsLimits && coinsLimits.has(value)) {
@@ -125,7 +124,7 @@ class VendingMachine {
      */
     __mapDenominationToValue(coinAmount) {
         let result = '';
-        for (let amount of coinAmount) {
+        for (const amount of coinAmount) {
             let denomination = this.constructor.denominations.get(amount[0]);
             if (!denomination) {
                 denomination = amount[0];

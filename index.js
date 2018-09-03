@@ -1,4 +1,3 @@
-"use strict";
 const express = require('express');
 const app = express();
 app.use(express.static('./public'));
@@ -6,7 +5,6 @@ app.use(express.static('./public'));
 //Some security
 const helmet = require('helmet');
 app.use(helmet());
-app.disable('x-powered-by');
 
 const url = require('url');
 const path = require('path');
@@ -17,9 +15,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname+'/templates/index.html'));
 });
 
+
 app.get('/getChange',  (req, res) => {
-    let urlParts = url.parse(req.url, true);
-    let query = urlParts.query;
+    const urlParts = url.parse(req.url, true);
+    const query = urlParts.query;
     if (query.amount) {
         let answer;
         /**
@@ -31,7 +30,7 @@ app.get('/getChange',  (req, res) => {
             if(query.mode !== '0' && query.mode !== '1') {
                 answer = {error: 'Undefined mode. Please check your input'}
             } else {
-                let withLimits = query.mode === '1';
+                const withLimits = query.mode === '1';
                 answer = vendingMachine.getChangeFor(query.amount, withLimits);
             }
 

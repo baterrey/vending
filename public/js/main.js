@@ -1,5 +1,4 @@
-"use strict";
-//Use es5, for  cross-browser compatibility
+/** Use es5, for  cross-browser compatibility */
 var app = new Vue({
     el: '#app',
     data: {
